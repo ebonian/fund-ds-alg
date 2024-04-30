@@ -167,24 +167,60 @@ public class CDLinkedList {
 
 	// write the sort method below
 	public void sort() throws Exception { // any sorting will do BUT you must use only 'this' list. No array or any other data structures allowed!!!
-		for (int i = 1 ; i <= size - 1 ; i++) {
-			DListIterator headerNextNode = new DListIterator(header.nextNode);
-			
-			while(headerNextNode.currentNode != header.previousNode) {
-				if (headerNextNode.currentNode.data > headerNextNode.currentNode.nextNode.data) {
-					DListIterator nextNode = new DListIterator(headerNextNode.currentNode.nextNode);
-					nextNode.currentNode.previousNode = headerNextNode.currentNode.previousNode;
-					headerNextNode.currentNode.previousNode.nextNode = nextNode.currentNode;
-					headerNextNode.currentNode.nextNode = nextNode.currentNode.nextNode;
-					nextNode.currentNode.nextNode.previousNode = headerNextNode.currentNode;
-					nextNode.currentNode.nextNode = headerNextNode.currentNode;
-					headerNextNode.currentNode.previousNode = nextNode.currentNode;
-					headerNextNode = nextNode;	
-				}
-				
-				headerNextNode.next();
+		if (isEmpty() || size == 1) {
+            return;
+        }
+
+        int[] elements = new int[size];
+        DListIterator itr = new DListIterator(header);
+		int index = -1;
+		while (itr.hasNext()) {
+			int v = itr.next();
+			index++;
+			if (v == HEADERVALUE) {
+				break;
 			}
+			elements[index] = v;
 		}
+		
+		int[] sortedElements = mergeSort(elements, 0, size-1);
+
+        makeEmpty();
+        for (int element : sortedElements) {
+            insert(element, new DListIterator(header.previousNode));
+        }
 	}
 
+    private int[] mergeSort(int[] arr, int left, int right) {
+        if (left < right) {
+            int mid = (left + right) / 2;
+            int[] leftArr = mergeSort(arr, left, mid);
+            int[] rightArr = mergeSort(arr, mid + 1, right);
+            return merge(leftArr, rightArr);
+        }
+        return new int[]{arr[left]};
+    }
+
+    private int[] merge(int[] leftArr, int[] rightArr) {
+        int[] merged = new int[leftArr.length + rightArr.length];
+        int i = 0, j = 0, k = 0;
+
+        while (i < leftArr.length && j < rightArr.length) {
+            if (leftArr[i] <= rightArr[j]) {
+                merged[k++] = leftArr[i++];
+            } else {
+                merged[k++] = rightArr[j++];
+            }
+        }
+
+        while (i < leftArr.length) {
+            merged[k++] = leftArr[i++];
+        }
+
+        while (j < rightArr.length) {
+            merged[k++] = rightArr[j++];
+        }
+
+        return merged;
+    }
 }
